@@ -1,0 +1,8 @@
+# MYSHARK Python requirements
+
+# MYSHARK itself does not depend on heavy Python libraries.
+# It relies on the system-installed Wireshark CLI (tshark).
+
+# Python standard library is sufficient.
+# External dependency (system-level):
+# tshark (install via package manager)
