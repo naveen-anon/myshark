@@ -69,18 +69,7 @@ Report includes:
 Protocol counts
 Top IPs
 Packet statistics
-Conversations summary
-## 📁 Project Structure
-
-myshark/
-├── myshark/
-│   ├── core/        # Engine & analyzers
-│   ├── modules/     # DNS / HTTP / TLS modules
-│   ├── utils/       # Colors, helpers
-│   └── detectors/   # Scan / attack detection (future)
-├── setup.py
-├── README.md
-└── requirements.txt
+Conversations summary 
 ## ⚠️ Limitations
 Live sniffing depends on system permissions
 Best suited for offline PCAP analysis
