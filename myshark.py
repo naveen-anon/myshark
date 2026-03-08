@@ -1,41 +1,70 @@
-#!/usr/bin/env python3
-
-from scapy.all import sniff, IP, TCP, UDP, ICMP
+from scapy.all import sniff, IP
 import datetime
+from rich.console import Console
+from rich.panel import Panel
+from rich.text import Text
 
-print("""
+from filters import detect_protocol
+from geoip import get_location
+from dashboard import show_packet
+from savepcap import save_packet
+from graph import update_graph
+
+console = Console()
+
+packet_count = 0
+
+
+banner = Text("""
 ███╗   ███╗██╗   ██╗███████╗██╗  ██╗ █████╗ ██████╗ ██╗  ██╗
 ████╗ ████║╚██╗ ██╔╝██╔════╝██║  ██║██╔══██╗██╔══██╗██║ ██╔╝
 ██╔████╔██║ ╚████╔╝ ███████╗███████║███████║██████╔╝█████╔╝
 ██║╚██╔╝██║  ╚██╔╝  ╚════██║██╔══██║██╔══██║██╔══██╗██╔═██╗
 ██║ ╚═╝ ██║   ██║   ███████║██║  ██║██║  ██║██║  ██║██║  ██╗
 ╚═╝     ╚═╝   ╚═╝   ╚══════╝╚═╝  ╚═╝╚═╝  ╚═╝╚═╝  ╚═╝╚═╝  ╚═╝
+""", style="bold green")
 
-        MyShark Packet Analyzer
-""")
+console.print(Panel(banner, title="[red]MyShark v2[/red]", subtitle="[cyan]Network Packet Analyzer[/cyan]"))
 
-def process_packet(packet):
+
+def process(packet):
+
+    global packet_count
 
     if IP in packet:
 
         src = packet[IP].src
         dst = packet[IP].dst
-        proto = "OTHER"
 
-        if TCP in packet:
-            proto = "TCP"
-
-        elif UDP in packet:
-            proto = "UDP"
-
-        elif ICMP in packet:
-            proto = "ICMP"
+        proto = detect_protocol(packet)
+        location = get_location(src)
 
         time = datetime.datetime.now().strftime("%H:%M:%S")
 
-        print(f"[{time}] {proto} {src}  --->  {dst}")
+        proto_color = {
+            "HTTP": "yellow",
+            "DNS": "cyan",
+            "TCP": "green",
+            "UDP": "magenta",
+            "OTHER": "white"
+        }
+
+        color = proto_color.get(proto, "white")
+
+        console.print(
+            f"[bold blue]{time}[/bold blue] "
+            f"[{color}]{proto}[/{color}] "
+            f"[green]{src}[/green] ➜ "
+            f"[red]{dst}[/red] "
+            f"[dim]{location}[/dim]"
+        )
+
+        save_packet(packet)
+
+        packet_count += 1
+        update_graph(packet_count)
 
 
-print("[+] Starting packet capture...\n")
+console.print("[bold green][+] Starting packet capture...[/bold green]\n")
 
-sniff(prn=process_packet, store=False)
+sniff(prn=process, store=False)
