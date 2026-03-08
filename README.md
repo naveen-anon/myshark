@@ -59,7 +59,7 @@ Libraries used:
 Clone the repository
 
 ```
-git clone https://github.com/yourusername/myshark.git
+git clone https://github.com/naveen-anon/myshark.git
 ```
 
 Open project folder
